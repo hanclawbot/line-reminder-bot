@@ -15,6 +15,7 @@ LINE_CHANNEL_SECRET = os.environ.get('LINE_CHANNEL_SECRET', '')
 
 print(f"TOKEN長度: {len(LINE_CHANNEL_ACCESS_TOKEN)}")
 print(f"SECRET長度: {len(LINE_CHANNEL_SECRET)}")
+print("LINE Bot 啟動中...")
 
 line_bot_api = LineBotApi(LINE_CHANNEL_ACCESS_TOKEN)
 handler = WebhookHandler(LINE_CHANNEL_SECRET)
