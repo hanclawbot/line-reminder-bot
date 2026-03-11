@@ -10,8 +10,5 @@
       "src": "/(.*)",
       "dest": "app.py"
     }
-  ],
-  "python": {
-    "version": "3.11"
-  }
+  ]
 }
