@@ -13,15 +13,14 @@ import json
 app = Flask(__name__)
 
 # 環境變數
-LINE_CHANNEL_ACCESS_TOKEN = os.getenv("LINE_CHANNEL_ACCESS_TOKEN", "")
-LINE_CHANNEL_SECRET = os.getenv("LINE_CHANNEL_SECRET", "")
+LINE_CHANNEL_ACCESS_TOKEN = os.getenv("LINE_CHANNEL_ACCESS_TOKEN") or os.getenv("LINE_CHANNEL_ACCESS_TOKEN", "")
+LINE_CHANNEL_SECRET = os.getenv("LINE_CHANNEL_SECRET") or os.getenv("LINE_CHANNEL_SECRET", "")
 
-# 檢查環境變數
-if not LINE_CHANNEL_ACCESS_TOKEN or not LINE_CHANNEL_SECRET:
-    print("警告：LINE_CHANNEL_ACCESS_TOKEN 或 LINE_CHANNEL_SECRET 未設定")
+print(f"TOKEN設定: {'OK' if LINE_CHANNEL_ACCESS_TOKEN else 'MISSING'}")
+print(f"SECRET設定: {'OK' if LINE_CHANNEL_SECRET else 'MISSING'}")
 
-line_bot_api = LineBotApi(LINE_CHANNEL_ACCESS_TOKEN) if LINE_CHANNEL_ACCESS_TOKEN else None
-handler = WebhookHandler(LINE_CHANNEL_SECRET) if LINE_CHANNEL_SECRET else None
+line_bot_api = LineBotApi(LINE_CHANNEL_ACCESS_TOKEN)
+handler = WebhookHandler(LINE_CHANNEL_SECRET)
 
 # 儲存提醒資料（正式環境應使用資料庫）
 reminders = {}
@@ -135,18 +134,14 @@ def handle_message(event):
 
 @app.route("/callback", methods=['POST'])
 def callback():
-    if not handler:
-        print("Error: LINE_CHANNEL_SECRET not configured")
-        abort(500)
-    
     signature = request.headers.get('X-Line-Signature')
     body = request.get_data(as_text=True)
     
     try:
         handler.handle(body, signature)
     except Exception as e:
-        print(f"Error: {e}")
-        abort(400)
+        print(f"Callback Error: {e}")
+        return 'OK'  # Return OK to avoid LINE retry
     
     return 'OK'
 
