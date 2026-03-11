@@ -16,8 +16,12 @@ app = Flask(__name__)
 LINE_CHANNEL_ACCESS_TOKEN = os.getenv("LINE_CHANNEL_ACCESS_TOKEN", "")
 LINE_CHANNEL_SECRET = os.getenv("LINE_CHANNEL_SECRET", "")
 
-line_bot_api = LineBotApi(LINE_CHANNEL_ACCESS_TOKEN)
-handler = WebhookHandler(LINE_CHANNEL_SECRET)
+# 檢查環境變數
+if not LINE_CHANNEL_ACCESS_TOKEN or not LINE_CHANNEL_SECRET:
+    print("警告：LINE_CHANNEL_ACCESS_TOKEN 或 LINE_CHANNEL_SECRET 未設定")
+
+line_bot_api = LineBotApi(LINE_CHANNEL_ACCESS_TOKEN) if LINE_CHANNEL_ACCESS_TOKEN else None
+handler = WebhookHandler(LINE_CHANNEL_SECRET) if LINE_CHANNEL_SECRET else None
 
 # 儲存提醒資料（正式環境應使用資料庫）
 reminders = {}
@@ -131,6 +135,10 @@ def handle_message(event):
 
 @app.route("/callback", methods=['POST'])
 def callback():
+    if not handler:
+        print("Error: LINE_CHANNEL_SECRET not configured")
+        abort(500)
+    
     signature = request.headers.get('X-Line-Signature')
     body = request.get_data(as_text=True)
     
